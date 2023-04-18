@@ -33,7 +33,6 @@ impl Store {
     pub fn get(&mut self, key: String) -> Option<String> {
         match self.data.get(key.as_str()) {
             Some(entry) => {
-                // Lazily expire keys as they are requested
                 if let Some(t) = &entry.t {
                     if Instant::now() > t.clone() {
                         self.data.remove(key.as_str());

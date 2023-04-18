@@ -7,15 +7,10 @@ const NEWLINE: u8 = '\n' as u8;
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub enum Value {
-    /// Null bulk reply, `$-1\r\n`
     Null,
-    /// For Simple Strings the first byte of the reply is "+".
     SimpleString(String),
-    /// For Errors the first byte of the reply is "-".
     Error(String),
-    /// For Bulk Strings the first byte of the reply is "$".
     BulkString(String),
-    /// For Arrays the first byte of the reply is "*".
     Array(Vec<Value>),
 }
 
@@ -45,7 +40,6 @@ impl Value {
             Value::SimpleString(s) => format!("+{}\r\n", s.as_str()),
             Value::Error(msg) => format!("-{}\r\n", msg.as_str()),
             Value::BulkString(s) => format!("${}\r\n{}\r\n", s.chars().count(), s),
-            // The other cases are not required
             _ => panic!("value encode not implemented for: {:?}", self),
         }
     }
@@ -68,7 +62,6 @@ impl RespConnection {
         loop {
             let bytes_read = self.stream.read_buf(&mut self.buffer).await?;
 
-            // Connection closed
             if bytes_read == 0 {
                 return Ok(None);
             }
